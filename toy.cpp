@@ -94,7 +94,6 @@ public:
 int main() {
   TheContext = std::make_unique<llvm::LLVMContext>();
   TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
-  Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
 
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
@@ -133,6 +132,7 @@ int main() {
   auto *MainF = llvm::Function::Create(MainFTy, llvm::Function::ExternalLinkage,
                                        "main", TheModule.get());
 
+  Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
   auto *EntryBB = llvm::BasicBlock::Create(*TheContext, "entry", MainF);
   Builder->SetInsertPoint(EntryBB);
 

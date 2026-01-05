@@ -132,6 +132,10 @@ int main() {
   auto *MainF = llvm::Function::Create(MainFTy, llvm::Function::ExternalLinkage,
                                        "main", TheModule.get());
 
+  auto *I8Ptr = llvm::PointerType::get(*TheContext, 0);
+  auto *PrintfTy = llvm::FunctionType::get(Int32Ty, {I8Ptr}, /*isVarArg=*/true);
+  auto Printf = TheModule->getOrInsertFunction("printf", PrintfTy);
+
   Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
   auto *EntryBB = llvm::BasicBlock::Create(*TheContext, "entry", MainF);
   Builder->SetInsertPoint(EntryBB);
@@ -143,6 +147,9 @@ int main() {
 
   // Option A: return (int)(5+6)
   llvm::Value *RetV = Builder->CreateFPToSI(ExprV, Int32Ty, "retint");
+
+  auto *Fmt = Builder->CreateGlobalString("sum=%d\n", "fmt");
+  Builder->CreateCall(Printf, {Fmt, RetV});
   Builder->CreateRet(RetV);
 
   auto Filename = "output.o";
